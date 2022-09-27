@@ -30,7 +30,7 @@
    > ```
 4. Put your database credentials in a file named `.env` like:
    > ```dotenv 
-   > MONGO_URI=mongodb://username:password@host:port/database
+   > MONGO_URI=mongodb://jeremyp:password@host:port/database
    > ```
 5. In the file `import-data.js`, create Mongoose model `Locations`
    1. Define a mongoose schema that accepts the following entity (look at the [documentation](https://mongoosejs.com/docs/guide.html#definition)):
