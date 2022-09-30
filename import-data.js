@@ -10,10 +10,7 @@ const LocationsSchema = new Schema({
     endDate: Date,
     filmName: String,
     district: Number,
-    geolocation: {
-        coordinates: [Number],
-        type: String,
-    },
+    geolocation:{ coordinates: [Number] , typee : String},
     sourceLocationId: String,
     filmDirectorName: String,
     address: String,
@@ -22,12 +19,10 @@ const LocationsSchema = new Schema({
 });
 
 
-mongoose.connect(process.env.MONGO_URI).then((success)=>console.log("connecté"))
-
 const Locations =  mongoose.model('Locations',LocationsSchema);
 
 
-function CreateLocations(filmingLocations){
+async function CreateLocations(filmingLocations){
     let promiseschunk = []
     for(const film in filmingLocations){
         f=filmingLocations[film].fields
@@ -39,7 +34,7 @@ function CreateLocations(filmingLocations){
             district: f.ardt_lieu,
             geolocation: {
                 coordinates: f.geo_shape.coordinates,
-                type: f.geo_shape.type,
+                typee: f.geo_shape.type,
             },
             sourceLocationId: f.id_lieu,
             filmDirectorName: f.nom_realisateur,
@@ -47,8 +42,43 @@ function CreateLocations(filmingLocations){
             startDate: f.date_debut,
             year: f.annee_tournage,
         });
+        promiseschunk.push(Location.save())
+        if (promiseschunk.length==500){
+            await Promise.all(promiseschunk)
+            console.log("fait")
+            promiseschunk = []
+        }
+
     }
+    await Promise.all(promiseschunk)
+    console.log("fait")
     
 }
 
+async function query_id(id){
+    return (await Locations.findById(id).exec())
+}
 
+async function query_filmName(n){
+    return(await Locations.find({filmName : n}).exec())
+    
+}
+
+async function delete_id(id){
+    Locations.findByIdAndDelete(id)
+    return("Supprimé")
+}
+
+async function add_loc(loc){
+    await loc.save()
+    return("Ajoutée")
+}
+
+async function main(){
+    await mongoose.connect(process.env.MONGO_URI).then((success)=>console.log("connecté"))
+    
+    console.log(await delete_id("6336da1656ec897f6dd7f062"))
+
+}
+
+main()
